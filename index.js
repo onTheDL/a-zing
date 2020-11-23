@@ -1,21 +1,23 @@
-const { Engine, Render, Runner, World, Bodies } = Matter;
+const { Engine, Render, Runner, World, Bodies, Body, } = Matter;
 
 //CONSTANTS
 const cells = 3; //total number of cells in horizontal and vertical direction
 const width = 600;
 const height = 600;
 
-const unitLength = width / cells
-
+const unitLength = width / cells;
 
 //Directional constants
-const up = 'up';
-const right = 'right';
-const down = 'down';
-const left = 'left';
+const up = "up";
+const right = "right";
+const down = "down";
+const left = "left";
 
 // Wall constant
 const wallWidth = 2;
+
+// Ball velocity
+const velocity = 3;
 
 const engine = Engine.create();
 const { world } = engine;
@@ -43,20 +45,20 @@ World.add(world, walls);
 // MAZE GENERATION
 
 // a helper fxn to randomize maze
-const shuffle = arr => {
-  let counter = arr.length
+const shuffle = (arr) => {
+  let counter = arr.length;
 
   while (counter > 0) {
-    const index = Math.floor(Math.random() * counter)
+    const index = Math.floor(Math.random() * counter);
 
-    counter--
+    counter--;
 
-    const temp = arr[counter]
-    arr[counter] = arr[index]
-    arr[index] = temp
+    const temp = arr[counter];
+    arr[counter] = arr[index];
+    arr[index] = temp;
   }
-  return arr
-}
+  return arr;
+};
 
 const grid = Array(cells)
   .fill(null)
@@ -78,34 +80,38 @@ const traverseCell = (row, column) => {
   if (grid[row][column] === true) return;
 
   // Mark this cell as visited
-  grid[row][column] = true
+  grid[row][column] = true;
 
   // Assemble randomly-ordered list of neighbours
   const neighbours = shuffle([
-    [row - 1, column, up], 
+    [row - 1, column, up],
     [row, column + 1, right],
     [row + 1, column, down],
-    [row, column - 1, left], 
-  ])
+    [row, column - 1, left],
+  ]);
 
   // For each neighbour ...
   for (let neighbour of neighbours) {
-
-  // nextRow and nextColumn are where user might go next
-    const [nextRow, nextColumn, direction] = neighbour
+    // nextRow and nextColumn are where user might go next
+    const [nextRow, nextColumn, direction] = neighbour;
 
     // See if that neighbour is out of bounds
-    if(nextRow < 0 || nextRow >= cells || nextColumn < 0 || nextColumn >= cells) {
+    if (
+      nextRow < 0 ||
+      nextRow >= cells ||
+      nextColumn < 0 ||
+      nextColumn >= cells
+    ) {
       //this skips over this el in iteration and goes on to the next -- i.e. skips the steps below
       continue;
     }
 
-  // If user has visited that neighbour, continue to next neighbour
+    // If user has visited that neighbour, continue to next neighbour
     if (grid[nextRow][nextColumn]) {
-      continue
+      continue;
     }
 
-  //Remove a wall from either horizontals or verticals array
+    //Remove a wall from either horizontals or verticals array
 
     //Updating verticals
     if (direction === left) {
@@ -121,17 +127,15 @@ const traverseCell = (row, column) => {
       horizontals[row][column] = true;
     }
 
-  // Visit that next cell
-    traverseCell(nextRow, nextColumn)
+    // Visit that next cell
+    traverseCell(nextRow, nextColumn);
   }
-  
-}
+};
 
-traverseCell(startRow, startColumn)
+traverseCell(startRow, startColumn);
 
 //Drawing rectangles in matterJS
 horizontals.forEach((row, rowIndex) => {
-  
   row.forEach((open, columnIndex) => {
     if (open) {
       return;
@@ -144,10 +148,10 @@ horizontals.forEach((row, rowIndex) => {
       {
         isStatic: true,
       }
-    )
-    World.add(world, wall)
-  })
-}) 
+    );
+    World.add(world, wall);
+  });
+});
 
 verticals.forEach((row, rowIndex) => {
   row.forEach((open, columnIndex) => {
@@ -162,19 +166,47 @@ verticals.forEach((row, rowIndex) => {
       {
         isStatic: true,
       }
-    )
-    World.add(world, wall)
-  })
-}) 
+    );
+    World.add(world, wall);
+  });
+});
 
+//End-goal
 const goal = Bodies.rectangle(
   width - unitLength / 2,
   height - unitLength / 2,
-  unitLength * .7, //scale with the size of the cell, i.e. 70%
-  unitLength * .7,
+  unitLength * 0.7, //scale with the size of the cell, i.e. 70%
+  unitLength * 0.7,
   {
     isStatic: true,
   }
-)
+);
+World.add(world, goal);
 
-World.add(world, goal)
+//Ball
+const ball = Bodies.circle(
+  unitLength / 2,
+  unitLength / 2,
+  unitLength / 4 // <- the radius of the ball
+);
+World.add(world, ball);
+
+// DOM EVENTS
+
+
+document.addEventListener("keydown", (event) => {
+  const { x, y } = ball.velocity;
+  
+  if (event.code === "KeyW" || event.key === "ArrowUp") {
+    Body.setVelocity(ball, { x, y: y - velocity }) // sets velocity change in y-axis
+  }
+  if (event.code === "KeyD" || event.key === "ArrowRight") {
+    Body.setVelocity(ball, { x: x + velocity, y }) // sets velocity change in x-axis
+  }
+  if (event.code === "KeyS" || event.key === "ArrowDown") {
+    Body.setVelocity(ball, { x, y: y + velocity }) 
+  }
+  if (event.code === "KeyA" || event.key === "ArrowLeft") {
+    Body.setVelocity(ball, { x: x - velocity, y })
+  }
+});
