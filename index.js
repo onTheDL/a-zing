@@ -1,7 +1,7 @@
 const { Engine, Render, Runner, World, Bodies } = Matter;
 
 //CONSTANTS
-const cells = 16; //total number of cells in horizontal and vertical direction
+const cells = 3; //total number of cells in horizontal and vertical direction
 const width = 600;
 const height = 600;
 
@@ -13,6 +13,9 @@ const up = 'up';
 const right = 'right';
 const down = 'down';
 const left = 'left';
+
+// Wall constant
+const wallWidth = 2;
 
 const engine = Engine.create();
 const { world } = engine;
@@ -30,10 +33,10 @@ Runner.run(Runner.create(), engine);
 
 // Walls
 const walls = [
-  Bodies.rectangle(width / 2, 0, width, 40, { isStatic: true }),
-  Bodies.rectangle(width / 2, height, width, 40, { isStatic: true }),
-  Bodies.rectangle(0, height / 2, 40, height, { isStatic: true }),
-  Bodies.rectangle(width, height / 2, 40, height, { isStatic: true }),
+  Bodies.rectangle(width / 2, 0, width, wallWidth, { isStatic: true }),
+  Bodies.rectangle(width / 2, height, width, wallWidth, { isStatic: true }),
+  Bodies.rectangle(0, height / 2, wallWidth, height, { isStatic: true }),
+  Bodies.rectangle(width, height / 2, wallWidth, height, { isStatic: true }),
 ];
 World.add(world, walls);
 
@@ -163,3 +166,15 @@ verticals.forEach((row, rowIndex) => {
     World.add(world, wall)
   })
 }) 
+
+const goal = Bodies.rectangle(
+  width - unitLength / 2,
+  height - unitLength / 2,
+  unitLength * .7, //scale with the size of the cell, i.e. 70%
+  unitLength * .7,
+  {
+    isStatic: true,
+  }
+)
+
+World.add(world, goal)
