@@ -1,12 +1,12 @@
 const { Engine, Render, Runner, World, Bodies, Body, Events, } = Matter;
 
 //CONSTANTS
-const cellsHorizontal = 40;
-const cellsVertical = 30;
+const cellsHorizontal = 12;
+const cellsVertical = 12;
 
 // Refactored to span entire screen width and height
-const width = window.innerWidth;
-const height = window.innerHeight;
+const width = window.innerWidth - 10;
+const height = window.innerHeight - 10;
 
 const unitLengthX = width / cellsHorizontal;
 const unitLengthY = height / cellsVertical;
@@ -31,6 +31,7 @@ const render = Render.create({
   element: document.body,
   engine,
   options: {
+    wireframes: false,
     width,
     height,
   },
@@ -152,6 +153,9 @@ horizontals.forEach((row, rowIndex) => {
       {
         label: 'wall',
         isStatic: true,
+        render: {
+          fillStyle: '#e6e6f4',
+        }
       }
     );
     World.add(world, wall);
@@ -171,6 +175,9 @@ verticals.forEach((row, rowIndex) => {
       {
         label: 'wall',
         isStatic: true,
+        render: {
+          fillStyle: '#e6e6f4',
+        },
       }
     );
     World.add(world, wall);
@@ -186,6 +193,9 @@ const goal = Bodies.rectangle(
   {
     isStatic: true,
     label: 'goal',
+    render: {
+      fillStyle: 'red',
+    },
   }
 );
 World.add(world, goal);
@@ -197,7 +207,10 @@ const ball = Bodies.circle(
   unitLengthY / 2,
   ballRadius,
   {
-    label: 'ball'
+    label: 'ball',
+    render: {
+      fillStyle: '#5f89e2'
+    },
   },
 );
 World.add(world, ball);
@@ -220,6 +233,7 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
+
 // WIN CONDITION
 Events.on(engine, 'collisionStart', event => {
   event.pairs.forEach((collision) => {
@@ -227,6 +241,9 @@ Events.on(engine, 'collisionStart', event => {
 
     if (labels.includes(collision.bodyA.label) && labels.includes(collision.bodyB.label)) {
       
+      //Win notification
+      document.querySelector('.winner').classList.remove('hidden');
+
       //Win animation
       world.gravity.y = 1;
       world.bodies.forEach(body => {
@@ -237,3 +254,8 @@ Events.on(engine, 'collisionStart', event => {
     }
   })
 })
+
+// Play again button
+
+const button = document.querySelector('button')
+button.addEventListener('click', () => window.location.reload(true))
