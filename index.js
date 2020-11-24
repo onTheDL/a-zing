@@ -1,8 +1,8 @@
-const { Engine, Render, Runner, World, Bodies, Body, } = Matter;
+const { Engine, Render, Runner, World, Bodies, Body, Events, } = Matter;
 
 //CONSTANTS
 const cells = 3; //total number of cells in horizontal and vertical direction
-const width = 600;
+const width = 600; //are pixels values
 const height = 600;
 
 const unitLength = width / cells;
@@ -21,11 +21,12 @@ const velocity = 3;
 
 const engine = Engine.create();
 const { world } = engine;
+world.gravity.y = 0; // sets gravity effect on obj to zero
+
 const render = Render.create({
   element: document.body,
   engine,
   options: {
-    //are pixels values
     width,
     height,
   },
@@ -42,10 +43,9 @@ const walls = [
 ];
 World.add(world, walls);
 
-// MAZE GENERATION
 
-// a helper fxn to randomize maze
-const shuffle = (arr) => {
+// MAZE GENERATION
+const shuffle = (arr) => { // a helper fxn to randomize maze
   let counter = arr.length;
 
   while (counter > 0) {
@@ -179,21 +179,23 @@ const goal = Bodies.rectangle(
   unitLength * 0.7,
   {
     isStatic: true,
+    label: 'goal',
   }
 );
 World.add(world, goal);
-
+   
 //Ball
 const ball = Bodies.circle(
   unitLength / 2,
   unitLength / 2,
-  unitLength / 4 // <- the radius of the ball
+  unitLength / 4, // <- the radius of the ball
+  {
+    label: 'ball'
+  },
 );
 World.add(world, ball);
 
 // DOM EVENTS
-
-
 document.addEventListener("keydown", (event) => {
   const { x, y } = ball.velocity;
   
@@ -210,3 +212,14 @@ document.addEventListener("keydown", (event) => {
     Body.setVelocity(ball, { x: x - velocity, y })
   }
 });
+
+// WIN CONDITION
+Events.on(engine, 'collisionStart', event => {
+  event.pairs.forEach((collision) => {
+    const labels = ['ball', 'goal'];
+
+    if (labels.includes(collision.bodyA.label) && labels.includes(collision.bodyB.label)) {
+      console.log('User won!');
+    }
+  })
+})
