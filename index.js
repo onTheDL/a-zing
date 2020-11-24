@@ -2,8 +2,10 @@ const { Engine, Render, Runner, World, Bodies, Body, Events, } = Matter;
 
 //CONSTANTS
 const cells = 6; //total number of cells in horizontal and vertical direction
-const width = 600; //are pixels values
-const height = 600;
+
+// Refactored to span entire screen width and height
+const width = window.innerWidth;
+const height = window.innerHeight;
 
 const unitLength = width / cells;
 
