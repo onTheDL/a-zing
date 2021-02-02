@@ -1,8 +1,8 @@
 const { Engine, Render, Runner, World, Bodies, Body, Events, } = Matter;
 
 //CONSTANTS
-const cellsHorizontal = 12;
-const cellsVertical = 12;
+const cellsHorizontal = 30;
+const cellsVertical = 30;
 
 // Refactored to span entire screen width and height
 const width = window.innerWidth - 10;
